@@ -12,7 +12,7 @@ options(mc.cores = parallel::detectCores()) ## Le dice que use los nucleos dispo
 Sys.setenv(LOCAL_CPPFLAGS = '-march=native') ## Rstan recommend this for improved execution time  
 
 setwd("D:/LTER/Manuscript 2019 Stable Isotopes/Estimations/Pavel/")
-sources <- read.csv("D:/LTER/Manuscript 2019 Stable Isotopes/Estimations/Pavel/sourcesQP.csv")
+sources <- read.csv("sourcesQP.csv")
 sources
 
 sink("QP_PR.stan")
