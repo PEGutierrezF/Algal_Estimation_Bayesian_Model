@@ -11,7 +11,6 @@ rstan_options(auto_write = TRUE)##To avoid recompilation of unchanged Stan progr
 options(mc.cores = parallel::detectCores()) ## Le dice que use los nucleos disponibles para el analisis
 Sys.setenv(LOCAL_CPPFLAGS = '-march=native') ## Rstan recommend this for improved execution time  
 
-setwd("D:/LTER/Manuscript 2019 Stable Isotopes/Estimations/Pavel/")
 sources <- read.csv("sourcesQP.csv")
 sources
 
@@ -25,13 +24,13 @@ cat("
     vector [N] d13C_T; // Terrestrial isotopic signal
     vector [N] d15N_T; // Terrestrial isotopic signal
     
-    int  <lower=0> Stream_N [N]; // Stream Coffee
+    int  <lower=0> Stream_N [N]; // November 2017
     int  <lower=0> Stream_N_no;  // number of stream type
     
-    int  <lower=0> Stream_J [N]; // Stream Coffee
+    int  <lower=0> Stream_J [N]; // June 2018
     int  <lower=0> Stream_J_no;  // number of stream type
     
-    int  <lower=0> Stream_F [N]; // Stream Coffee
+    int  <lower=0> Stream_F [N]; // February 2019
     int  <lower=0> Stream_F_no;  // number of stream type
     
     }
@@ -105,5 +104,114 @@ QPCA <- rstan::stan(file = "QP_PR.stan", data = QP,
 QPCA
 
 
+# Plot results ------------------------------------------------------------
+
+traceplot(QPCA)
+print(QPCA)
+
+
+# Sources -----------------------------------------------------------------
+
+mod_sources_corr <- extract(QPCA)
+sources_cor <- mod_sources_corr
+head(sources_cor) 
+
+sources_A <- data.frame (
+    
+    Forest = c (
+        mean(sources_cor$d13C_A), 
+        mean (sources_cor$d15N_A), 
+        sd(sources_cor$d13C_A), 
+        sd(sources_cor$d15N_A), 
+        
+        mean(sources$delta13C_P[sources$Use=="1"]), 
+        mean(sources$delta15N_P[sources$Use=="1"]), 
+        sd(sources$delta13C_P[sources$Use=="1"]), 
+        sd(sources$delta15N_P[sources$Use=="1"]),
+        
+        mean(sources$delta13C_T[sources$Use=="1"]), 
+        mean(sources$delta15N_T[sources$Use=="1"]), 
+        sd(sources$delta13C_T[sources$Use=="1"]), 
+        sd(sources$delta15N_T[sources$Use=="1"]),
+        
+        
+        mean(sources_2$d13C_C3[sources_2$use=="1"], na.rm=T), 
+        mean(sources_2$d15N_C3[sources_2$use=="1"], na.rm=T), 
+        sd(sources_2$d13C_C3[sources_2$use=="1"], na.rm=T), 
+        sd(sources_2$d15N_C3[sources_2$use=="1"], na.rm=T),
+        
+        mean(sources_2$d13C_C4[sources_2$use=="1"], na.rm=T), 
+        mean(sources_2$d15N_C4[sources_2$use=="1"], na.rm=T), 
+        sd(sources_2$d13C_C4[sources_2$use=="1"], na.rm=T), 
+        sd(sources_2$d15N_C4[sources_2$use=="1"], na.rm=T),
+        
+        mean(sources_2$d13C_H[sources_2$use=="1"], na.rm=T), 
+        mean(sources_2$d15N_H[sources_2$use=="1"], na.rm=T), 
+        sd(sources_2$d13C_H[sources_2$use=="1"], na.rm=T), 
+        sd(sources_2$d15N_H[sources_2$use=="1"], na.rm=T)),
+    
+    Coffee = c(
+        mean(sources_cor$d13C_A + sources_cor$beta1), 
+        mean(sources_cor$d15N_A + sources_cor$beta3),
+        sd(sources_cor$d13C_A + sources_cor$beta1),
+        sd(sources_cor$d15N_A + sources_cor$beta3),
+        
+        mean(sources$delta13C_P[sources$Use=="2"]), 
+        mean(sources$delta15N_P[sources$Use=="2"]), 
+        sd(sources$delta13C_P[sources$Use=="2"]), 
+        sd(sources$delta15N_P[sources$Use=="2"]),
+        
+        mean(sources$delta13C_T[sources$Use=="2"]), 
+        mean(sources$delta15N_T[sources$Use=="2"]), 
+        sd(sources$delta13C_T[sources$Use=="2"]), 
+        sd(sources$delta15N_T[sources$Use=="2"]),
+        
+        mean(sources_2$d13C_C3[sources_2$use=="2"], na.rm=T), 
+        mean(sources_2$d15N_C3[sources_2$use=="2"], na.rm=T), 
+        sd(sources_2$d13C_C3[sources_2$use=="2"], na.rm=T), 
+        sd(sources_2$d15N_C3[sources_2$use=="2"], na.rm=T),
+        
+        mean(sources_2$d13C_C4[sources_2$use=="2"], na.rm=T), 
+        mean(sources_2$d15N_C4[sources_2$use=="2"], na.rm=T), 
+        sd(sources_2$d13C_C4[sources_2$use=="2"], na.rm=T), 
+        sd(sources_2$d15N_C4[sources_2$use=="2"], na.rm=T),
+        
+        mean(sources_2$d13C_H[sources_2$use=="2"], na.rm=T), 
+        mean(sources_2$d15N_H[sources_2$use=="2"], na.rm=T), 
+        sd(sources_2$d13C_H[sources_2$use=="2"], na.rm=T), 
+        sd(sources_2$d15N_H[sources_2$use=="2"], na.rm=T)),
+    
+    Pasture= c(
+        mean(sources_cor$d13C_A + sources_cor$beta2),
+        mean(sources_cor$d15N_A + sources_cor$beta4),
+        sd(sources_cor$d13C_A + sources_cor$beta2),
+        sd(sources_cor$d15N_A + sources_cor$beta4),
+        
+        mean(sources$delta13C_P[sources$Use=="3"]), 
+        mean(sources$delta15N_P[sources$Use=="3"]), 
+        sd(sources$delta13C_P[sources$Use=="3"]), 
+        sd(sources$delta15N_P[sources$Use=="3"]),
+        
+        mean(sources$delta13C_T[sources$Use=="3"]), 
+        mean(sources$delta15N_T[sources$Use=="3"]), 
+        sd(sources$delta13C_T[sources$Use=="3"]), 
+        sd(sources$delta15N_T[sources$Use=="3"]),
+        
+        mean(sources_2$d13C_C3[sources_2$use=="3"], na.rm=T), 
+        mean(sources_2$d15N_C3[sources_2$use=="3"], na.rm=T), 
+        sd(sources_2$d13C_C3[sources_2$use=="3"], na.rm=T), 
+        sd(sources_2$d15N_C3[sources_2$use=="3"], na.rm=T),
+        
+        mean(sources_2$d13C_C4[sources_2$use=="3"], na.rm=T), 
+        mean(sources_2$d15N_C4[sources_2$use=="3"], na.rm=T), 
+        sd(sources_2$d13C_C4[sources_2$use=="3"], na.rm=T), 
+        sd(sources_2$d15N_C4[sources_2$use=="3"], na.rm=T),
+        
+        mean(sources_2$d13C_H[sources_2$use=="3"], na.rm=T), 
+        mean(sources_2$d15N_H[sources_2$use=="3"], na.rm=T), 
+        sd(sources_2$d13C_H[sources_2$use=="3"], na.rm=T), 
+        sd(sources_2$d15N_H[sources_2$use=="3"], na.rm=T))
+    
+)
 
 
