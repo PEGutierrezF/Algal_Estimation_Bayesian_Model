@@ -122,7 +122,7 @@ mod_sources_corr <- extract(QPCA)
 sources_cor <- mod_sources_corr
 head(sources_cor) 
 
-sources_A <- data.frame (
+sources_QPA <- data.frame (
     
     February.2017 = c (
         mean(sources_cor$d13C_A), 
@@ -138,23 +138,7 @@ sources_A <- data.frame (
         mean(sources$delta13C_T[sources$Use=="1"]), 
         mean(sources$delta15N_T[sources$Use=="1"]), 
         sd(sources$delta13C_T[sources$Use=="1"]), 
-        sd(sources$delta15N_T[sources$Use=="1"]),
-        
-        
-        mean(sources_2$d13C_C3[sources_2$use=="1"], na.rm=T), 
-        mean(sources_2$d15N_C3[sources_2$use=="1"], na.rm=T), 
-        sd(sources_2$d13C_C3[sources_2$use=="1"], na.rm=T), 
-        sd(sources_2$d15N_C3[sources_2$use=="1"], na.rm=T),
-        
-        mean(sources_2$d13C_C4[sources_2$use=="1"], na.rm=T), 
-        mean(sources_2$d15N_C4[sources_2$use=="1"], na.rm=T), 
-        sd(sources_2$d13C_C4[sources_2$use=="1"], na.rm=T), 
-        sd(sources_2$d15N_C4[sources_2$use=="1"], na.rm=T),
-        
-        mean(sources_2$d13C_H[sources_2$use=="1"], na.rm=T), 
-        mean(sources_2$d15N_H[sources_2$use=="1"], na.rm=T), 
-        sd(sources_2$d13C_H[sources_2$use=="1"], na.rm=T), 
-        sd(sources_2$d15N_H[sources_2$use=="1"], na.rm=T)),
+        sd(sources$delta15N_T[sources$Use=="1"])),
     
     November2017 = c(
         mean(sources_cor$d13C_A + sources_cor$beta1), 
@@ -170,23 +154,8 @@ sources_A <- data.frame (
         mean(sources$delta13C_T[sources$Use=="2"]), 
         mean(sources$delta15N_T[sources$Use=="2"]), 
         sd(sources$delta13C_T[sources$Use=="2"]), 
-        sd(sources$delta15N_T[sources$Use=="2"]),
-        
-        mean(sources_2$d13C_C3[sources_2$use=="2"], na.rm=T), 
-        mean(sources_2$d15N_C3[sources_2$use=="2"], na.rm=T), 
-        sd(sources_2$d13C_C3[sources_2$use=="2"], na.rm=T), 
-        sd(sources_2$d15N_C3[sources_2$use=="2"], na.rm=T),
-        
-        mean(sources_2$d13C_C4[sources_2$use=="2"], na.rm=T), 
-        mean(sources_2$d15N_C4[sources_2$use=="2"], na.rm=T), 
-        sd(sources_2$d13C_C4[sources_2$use=="2"], na.rm=T), 
-        sd(sources_2$d15N_C4[sources_2$use=="2"], na.rm=T),
-        
-        mean(sources_2$d13C_H[sources_2$use=="2"], na.rm=T), 
-        mean(sources_2$d15N_H[sources_2$use=="2"], na.rm=T), 
-        sd(sources_2$d13C_H[sources_2$use=="2"], na.rm=T), 
-        sd(sources_2$d15N_H[sources_2$use=="2"], na.rm=T)),
-    
+        sd(sources$delta15N_T[sources$Use=="2"])),
+   
     June2018= c(
         mean(sources_cor$d13C_A + sources_cor$beta2),
         mean(sources_cor$d15N_A + sources_cor$beta5),
@@ -201,22 +170,7 @@ sources_A <- data.frame (
         mean(sources$delta13C_T[sources$Use=="3"]), 
         mean(sources$delta15N_T[sources$Use=="3"]), 
         sd(sources$delta13C_T[sources$Use=="3"]), 
-        sd(sources$delta15N_T[sources$Use=="3"]),
-        
-        mean(sources_2$d13C_C3[sources_2$use=="3"], na.rm=T), 
-        mean(sources_2$d15N_C3[sources_2$use=="3"], na.rm=T), 
-        sd(sources_2$d13C_C3[sources_2$use=="3"], na.rm=T), 
-        sd(sources_2$d15N_C3[sources_2$use=="3"], na.rm=T),
-        
-        mean(sources_2$d13C_C4[sources_2$use=="3"], na.rm=T), 
-        mean(sources_2$d15N_C4[sources_2$use=="3"], na.rm=T), 
-        sd(sources_2$d13C_C4[sources_2$use=="3"], na.rm=T), 
-        sd(sources_2$d15N_C4[sources_2$use=="3"], na.rm=T),
-        
-        mean(sources_2$d13C_H[sources_2$use=="3"], na.rm=T), 
-        mean(sources_2$d15N_H[sources_2$use=="3"], na.rm=T), 
-        sd(sources_2$d13C_H[sources_2$use=="3"], na.rm=T), 
-        sd(sources_2$d15N_H[sources_2$use=="3"], na.rm=T)),
+        sd(sources$delta15N_T[sources$Use=="3"])),
     
     February2019= c(
         mean(sources_cor$d13C_A + sources_cor$beta3),
@@ -232,23 +186,12 @@ sources_A <- data.frame (
         mean(sources$delta13C_T[sources$Use=="4"]), 
         mean(sources$delta15N_T[sources$Use=="4"]), 
         sd(sources$delta13C_T[sources$Use=="4"]), 
-        sd(sources$delta15N_T[sources$Use=="4"]),
-        
-        mean(sources_2$d13C_C3[sources_2$use=="4"], na.rm=T), 
-        mean(sources_2$d15N_C3[sources_2$use=="4"], na.rm=T), 
-        sd(sources_2$d13C_C3[sources_2$use=="4"], na.rm=T), 
-        sd(sources_2$d15N_C3[sources_2$use=="4"], na.rm=T),
-        
-        mean(sources_2$d13C_C4[sources_2$use=="4"], na.rm=T), 
-        mean(sources_2$d15N_C4[sources_2$use=="4"], na.rm=T), 
-        sd(sources_2$d13C_C4[sources_2$use=="4"], na.rm=T), 
-        sd(sources_2$d15N_C4[sources_2$use=="4"], na.rm=T),
-        
-        mean(sources_2$d13C_H[sources_2$use=="4"], na.rm=T), 
-        mean(sources_2$d15N_H[sources_2$use=="4"], na.rm=T), 
-        sd(sources_2$d13C_H[sources_2$use=="4"], na.rm=T), 
-        sd(sources_2$d15N_H[sources_2$use=="4"], na.rm=T))
-    
+        sd(sources$delta15N_T[sources$Use=="4"]))
 )
+
+rownames(sources_QPA) <- c("d13C_A","d15N_A", "sd_d13C_A", "sd_d15N_A", "d13C_P",
+                         "d15N_P", "sd_d13C_P", "sd_d15N_P", "d13C_T", "d15N_T",
+                         "sd_d13C_T", "sd_d15N_T")
+print(sources_QPA, digits=2)
 
 
