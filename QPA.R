@@ -90,12 +90,18 @@ cat("
     fill=TRUE)
 sink()
 
+
+# Model -------------------------------------------------------------------
+# delta13C_P =  Delta Periphyton (Biofilm), same for Nitrogen
+# delta13C_T = Delta Terrestrial, same for Nitrogen
+
 QP <- list(d13C_P=(sources$delta13C_P), d15N_P=(sources$delta15N_P), 
                        d13C_T = (sources$delta13C_T), d15N_T = (sources$delta15N_T), 
                        N = length(sources$delta13C_P), Stream =(sources$Use), Stream_no = 4, 
                         Stream_N = (sources$November), Stream_N_no = 1, 
                         Stream_J = (sources$June), Stream_J_no = 1,
                         Stream_F = (sources$February), Stream_F_no = 1)
+
 
 QPCA <- rstan::stan(file = "QP_PR.stan", data = QP,
                     # control= list(adapt_delta = 0.99),
