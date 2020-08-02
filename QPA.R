@@ -124,7 +124,7 @@ head(sources_cor)
 
 sources_A <- data.frame (
     
-    Forest = c (
+    February.2017 = c (
         mean(sources_cor$d13C_A), 
         mean (sources_cor$d15N_A), 
         sd(sources_cor$d13C_A), 
@@ -156,11 +156,11 @@ sources_A <- data.frame (
         sd(sources_2$d13C_H[sources_2$use=="1"], na.rm=T), 
         sd(sources_2$d15N_H[sources_2$use=="1"], na.rm=T)),
     
-    Coffee = c(
+    November2017 = c(
         mean(sources_cor$d13C_A + sources_cor$beta1), 
-        mean(sources_cor$d15N_A + sources_cor$beta3),
+        mean(sources_cor$d15N_A + sources_cor$beta4),
         sd(sources_cor$d13C_A + sources_cor$beta1),
-        sd(sources_cor$d15N_A + sources_cor$beta3),
+        sd(sources_cor$d15N_A + sources_cor$beta4),
         
         mean(sources$delta13C_P[sources$Use=="2"]), 
         mean(sources$delta15N_P[sources$Use=="2"]), 
@@ -187,11 +187,11 @@ sources_A <- data.frame (
         sd(sources_2$d13C_H[sources_2$use=="2"], na.rm=T), 
         sd(sources_2$d15N_H[sources_2$use=="2"], na.rm=T)),
     
-    Pasture= c(
+    June2018= c(
         mean(sources_cor$d13C_A + sources_cor$beta2),
-        mean(sources_cor$d15N_A + sources_cor$beta4),
+        mean(sources_cor$d15N_A + sources_cor$beta5),
         sd(sources_cor$d13C_A + sources_cor$beta2),
-        sd(sources_cor$d15N_A + sources_cor$beta4),
+        sd(sources_cor$d15N_A + sources_cor$beta5),
         
         mean(sources$delta13C_P[sources$Use=="3"]), 
         mean(sources$delta15N_P[sources$Use=="3"]), 
@@ -216,7 +216,38 @@ sources_A <- data.frame (
         mean(sources_2$d13C_H[sources_2$use=="3"], na.rm=T), 
         mean(sources_2$d15N_H[sources_2$use=="3"], na.rm=T), 
         sd(sources_2$d13C_H[sources_2$use=="3"], na.rm=T), 
-        sd(sources_2$d15N_H[sources_2$use=="3"], na.rm=T))
+        sd(sources_2$d15N_H[sources_2$use=="3"], na.rm=T)),
+    
+    February2019= c(
+        mean(sources_cor$d13C_A + sources_cor$beta3),
+        mean(sources_cor$d15N_A + sources_cor$beta6),
+        sd(sources_cor$d13C_A + sources_cor$beta3),
+        sd(sources_cor$d15N_A + sources_cor$beta6),
+        
+        mean(sources$delta13C_P[sources$Use=="4"]), 
+        mean(sources$delta15N_P[sources$Use=="4"]), 
+        sd(sources$delta13C_P[sources$Use=="4"]), 
+        sd(sources$delta15N_P[sources$Use=="4"]),
+        
+        mean(sources$delta13C_T[sources$Use=="4"]), 
+        mean(sources$delta15N_T[sources$Use=="4"]), 
+        sd(sources$delta13C_T[sources$Use=="4"]), 
+        sd(sources$delta15N_T[sources$Use=="4"]),
+        
+        mean(sources_2$d13C_C3[sources_2$use=="4"], na.rm=T), 
+        mean(sources_2$d15N_C3[sources_2$use=="4"], na.rm=T), 
+        sd(sources_2$d13C_C3[sources_2$use=="4"], na.rm=T), 
+        sd(sources_2$d15N_C3[sources_2$use=="4"], na.rm=T),
+        
+        mean(sources_2$d13C_C4[sources_2$use=="4"], na.rm=T), 
+        mean(sources_2$d15N_C4[sources_2$use=="4"], na.rm=T), 
+        sd(sources_2$d13C_C4[sources_2$use=="4"], na.rm=T), 
+        sd(sources_2$d15N_C4[sources_2$use=="4"], na.rm=T),
+        
+        mean(sources_2$d13C_H[sources_2$use=="4"], na.rm=T), 
+        mean(sources_2$d15N_H[sources_2$use=="4"], na.rm=T), 
+        sd(sources_2$d13C_H[sources_2$use=="4"], na.rm=T), 
+        sd(sources_2$d15N_H[sources_2$use=="4"], na.rm=T))
     
 )
 

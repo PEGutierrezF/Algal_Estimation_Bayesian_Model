@@ -7,13 +7,13 @@
     vector [N] d13C_T; // Terrestrial isotopic signal
     vector [N] d15N_T; // Terrestrial isotopic signal
     
-    int  <lower=0> Stream_N [N]; // Stream Coffee
+    int  <lower=0> Stream_N [N]; // November 2017
     int  <lower=0> Stream_N_no;  // number of stream type
     
-    int  <lower=0> Stream_J [N]; // Stream Coffee
+    int  <lower=0> Stream_J [N]; // June 2018
     int  <lower=0> Stream_J_no;  // number of stream type
     
-    int  <lower=0> Stream_F [N]; // Stream Coffee
+    int  <lower=0> Stream_F [N]; // February 2019
     int  <lower=0> Stream_F_no;  // number of stream type
     
     }
