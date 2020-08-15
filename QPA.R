@@ -94,7 +94,7 @@ QP <- list(d13C_P=(sources$delta13C_P), d15N_P=(sources$delta15N_P),
 
 
 QPCA <- rstan::stan(file = "QP_PR.stan", data = QP,
-                    # control= list(adapt_delta = 0.99),
+                    control= list(adapt_delta = 0.99, max_treedepth=12),
                     chains = 4, iter = 30000) # warmup= 30000,
 
 QPCA
