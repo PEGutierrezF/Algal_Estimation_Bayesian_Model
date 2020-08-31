@@ -104,7 +104,7 @@ QP <- list(d13C_P=(sources$delta13C_P), d15N_P=(sources$delta15N_P),
 
 QPCA <- rstan::stan(file = "QP_PR.stan", data = QP,
                     control= list(adapt_delta = 0.99, max_treedepth=12),
-                    chains = 4, iter = 30000) # warmup= 30000,
+                    chains = 4, iter = 5000) # warmup= 30000,
 
 QPCA
 
@@ -128,12 +128,7 @@ sources_QPA <- data.frame (
             mean(sources_cor$d15N_A),
             sd(sources_cor$d13C_A),
             sd(sources_cor$d15N_A),
-            
-            mean(sources_cor$d13C_A),
-            mean(sources_cor$d15N_A),
-            sd(sources_cor$d13C_A),
-            sd(sources_cor$d15N_A),
-            
+
             mean(sources$delta13C_P[sources$Date_no=="1"]), 
             mean(sources$delta15N_P[sources$Date_no=="1"]), 
             sd(sources$delta13C_P[sources$Date_no=="1"]), 
@@ -206,6 +201,9 @@ print(sources_QPA, digits=2)
 
 # src= Sources
 
+
+
+
 sink("QPA_FW.stan")
 cat("
 
@@ -218,7 +216,7 @@ data{
     vector [src_no] src_C; // Mean value of 13 Carbon in each basal resources
     vector [src_no] SD_src_C; // SD value of 13 Carbon in each basal resources
     vector [src_no] src_N; // Mean value of 15 Nitrogen in each basal resources
-    vector [src_no] SD_src_C; // SD value of 15 Nitrogen in each basal resources
+    vector [src_no] SD_src_N; // SD value of 15 Nitrogen in each basal resources
     }
     
 parameters{
@@ -246,12 +244,12 @@ transformed parameters{
     
     // 13C Stable Isotopes
     for (k in 1:src_no){
-    mu_C[k] <- src_C_mean_[k] + DeltaC * L;
+    mu_C[k] <- src_C_mean[k] + DeltaC * L;
     }
     
     // 15N Stable Isotopes
     for (k in 1:src_no){
-    mu_N[k] <- src_N_mean_[k] + DeltaN * L;
+    mu_N[k] <- src_N_mean[k] + DeltaN * L;
     }
     
     // to integrate proportion on sigma estimation
@@ -322,14 +320,22 @@ vector[src_no] contributions;
 
     ,fill=TRUE)
 sink()
-    
-QPAlist <- list(d13C_ind=(y_d13C), d15N_ind=(y_d15N), N= length(y_d13C), src_no=3,
-                src_C=(d13C_sources), SD_src_C=(sigma13C_sources), 
-                src_N = (d15N_soruces), SD_src_N=(sigma13N_sources))
+
+QPA_Feb <- read.csv("Stan_QPA/QPA_Feb.csv")
+QPA_Feb 
+
+sources_QPA_Feb <- read.csv("Stan_QPA/sources_QPA_Feb.csv")
+sources_QPA_Feb 
+
+
+QPAlist <- list(d13C_ind=(QPA_Feb$d13C_ind), d15N_ind=(QPA_Feb$d15N_ind), 
+                N= length(QPA_Feb$d13C_ind), src_no=3,
+                src_C=(sources_QPA_Feb$meand13CPl), SD_src_C=(sources_QPA_Feb$SDd13C), 
+                src_N = (sources_QPA_Feb$meand15NPl), SD_src_N=(sources_QPA_Feb$SDd15N))
 
 QPA_FW <- stan(file='QPA_FW.stan', data= QPAlist,
                warmup=98000,
-               chains=4, iter= 100000)    
+               chains=4, iter= 1000)    
     
     
     
