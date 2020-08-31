@@ -229,6 +229,7 @@ parameters{
     ordered [src_no] src_N_mean;
     simplex [src_no] Theta;
     vector <lower=0> [src_no] e_C; // residual error Jackson et al. 2009
+    vector <lower=0> [src_no] e_N; // residual error Jackson et al. 2009
     vector [src_no] sigma_C;
     vector [src_no] sigma_N;
     
@@ -294,8 +295,29 @@ vector[src_no] contribution;
     for(k in 1:src_no){
     sigma_C[k] ~ normal(SD_src_C[K] * Theta2[k], e_C);
     }
-}
+    
+        for(k in 1:src_no){
+    sigma_Nk] ~ normal(SD_src_N[K] * Theta2[k], e_N);
+        }
+    
+    for(i in 1:N){
+    for(k in 1:src_no){
+    contributions[k] = log(Theta[k]) + normal_lpdf (d13C_indv| mu_C, sigma_C[k]);
     }
+        }
+    
+        for(i in 1:N){
+    for(k in 1:src_no){
+    contributions[k] = log(Theta[k]) + normal_lpdf (d15N_indv| mu_N, sigma_N[k]);
+    }
+        }
+            target += log_sum_exp(contributions);
+        }
+}
+        "
+
+    ,fill=TRUE)
+    sink()
     
     
     
