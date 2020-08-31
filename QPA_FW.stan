@@ -37,12 +37,12 @@ transformed parameters{
     
     // 13C Stable Isotopes
     for (k in 1:src_no){
-    mu_C[k] <- src_C_mean_[k] + DeltaC * L;
+    mu_C[k] <- src_C_mean[k] + DeltaC * L;
     }
     
     // 15N Stable Isotopes
     for (k in 1:src_no){
-    mu_N[k] <- src_N_mean_[k] + DeltaN * L;
+    mu_N[k] <- src_N_mean[k] + DeltaN * L;
     }
     
     // to integrate proportion on sigma estimation
@@ -52,7 +52,7 @@ transformed parameters{
     
     // ilr transform of global proportions (Theta) same MIXSIAR and Egozcue 2003 (pages 296)
     for(k in 1:(src_no - 1)){
-    Theta_mean <- rows_dot_set(Theta[k]^(1/k));
+    Theta_mean <- rows_dot_self(Theta[k]) ^ (1/k);
     ilr_global[k] <- sqrt(k/(k+1)) * log(Theta_mean[k]/Theta[k+1]);
     }
     
