@@ -200,3 +200,26 @@ rownames(sources_QPA) <- c("d13C_A","d15N_A", "sd_d13C_A", "sd_d15N_A", "d13C_P"
 print(sources_QPA, digits=2)
 
 
+
+# Model to TEF and Foow webs ----------------------------------------------
+
+
+sink("QPA_FW.stan")
+cat("
+    data{
+    int <lower=1> N; // Number of samples
+    vector [N] d13C_indv; // 13 Carbon signature for each Individual
+    vector [N] d13N_indv; // 15 Nitrogen signature for each Individual
+    
+    int <lower=0> scr_no; // Number of posible basal resources
+    vector [scr_no] scr_C; // Mean value of 13 Carbon in each basal resources
+    vector [scr_no] SD_scr_C; // SD value of 13 Carbon in each basal resources
+    vector [scr_no] scr_N; // Mean value of 15 Nitrogen in each basal resources
+    vector [scr_no] SD_scr_C; // SD value of 15 Nitrogen in each basal resources
+    
+    
+    
+    
+    
+    
+
