@@ -217,6 +217,19 @@ cat("
     vector [scr_no] scr_N; // Mean value of 15 Nitrogen in each basal resources
     vector [scr_no] SD_scr_C; // SD value of 15 Nitrogen in each basal resources
     
+    }
+    parameters{
+    
+    real <lower=0> DeltaC;
+    real <lower=0> DeltaN;
+    real <lower=0> L;   // Trphic Level
+    
+    ordered [scr_no] src_C_mean;
+    ordered [scr_no] src_N_mean;
+    simplex [scr_no] Theta;
+    vector <lower=0> [src_no] e_c; // residual error Jackson et al. 2009
+    }
+    
     
     
     
