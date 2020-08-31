@@ -200,30 +200,32 @@ rownames(sources_QPA) <- c("d13C_A","d15N_A", "sd_d13C_A", "sd_d15N_A", "d13C_P"
 print(sources_QPA, digits=2)
 
 
+###########################################################################
+# Model to TEF and Food webs ----------------------------------------------
+###########################################################################
 
-# Model to TEF and Foow webs ----------------------------------------------
-
+# src= Sources
 
 sink("QPA_FW.stan")
 cat("
 
 data{
-    int <lower=1> N; // Number of samples
-    vector [N] d13C_indv; // 13 Carbon signature for each Individual
-    vector [N] d13N_indv; // 15 Nitrogen signature for each Individual
+    int <lower=1> N; // Number of individuals
+    vector [N] d13C_ind; // 13 Carbon signature for each Individual
+    vector [N] d15N_ind; // 15 Nitrogen signature for each Individual
     
     int <lower=0> src_no; // Number of posible basal resources
     vector [src_no] src_C; // Mean value of 13 Carbon in each basal resources
     vector [src_no] SD_src_C; // SD value of 13 Carbon in each basal resources
     vector [src_no] src_N; // Mean value of 15 Nitrogen in each basal resources
     vector [src_no] SD_src_C; // SD value of 15 Nitrogen in each basal resources
-    
     }
+    
 parameters{
     
     real <lower=0> DeltaC;
     real <lower=0> DeltaN;
-    real <lower=0> L;   // Trphic Level
+    real <lower=0> L;   // Trophic Level
     
     ordered [src_no] src_C_mean;
     ordered [src_no] src_N_mean;
@@ -232,7 +234,6 @@ parameters{
     vector <lower=0> [src_no] e_N; // residual error Jackson et al. 2009
     vector [src_no] sigma_C;
     vector [src_no] sigma_N;
-    
     }
     
 transformed parameters{
@@ -259,21 +260,22 @@ transformed parameters{
     }
     
     // ilr transform of global proportions (Theta) same MIXSIAR and Egozcue 2003 (pages 296)
-    for(k in 1:(src_no -1)){
+    for(k in 1:(src_no - 1)){
     Theta_mean <- rows_dot_set(Theta[k]^(1/k));
     ilr_global[k] <- sqrt(k/(k+1)) * log(Theta_mean[k]/Theta[k+1]);
     }
     
     // Dont generate individual deviates from the global mean, but keep same model structure
     for(i in 1:N){
-    for(src in 1:(n.sources -1)){
+    for(src in 1:(n.sources - 1)){
         ilr_ind[i,src] <- 0;
         ilr_total[i,src] <- ilr_global[src] + ilr_ind[i,src]; // add all effects togeter for each individual
         }
     }
+}
 
 model{
-vector[src_no] contribution;
+vector[src_no] contributions;
 
 // priors
     Theta ~ dirichlet(rep_vector(1, src_no));
@@ -297,29 +299,37 @@ vector[src_no] contribution;
     }
     
         for(k in 1:src_no){
-    sigma_Nk] ~ normal(SD_src_N[K] * Theta2[k], e_N);
+    sigma_N[k] ~ normal(SD_src_N[K] * Theta2[k], e_N);
         }
     
     for(i in 1:N){
     for(k in 1:src_no){
-    contributions[k] = log(Theta[k]) + normal_lpdf (d13C_indv| mu_C, sigma_C[k]);
+    contributions[k] = log(Theta[k]) + normal_lpdf (d13C_ind| mu_C, sigma_C[k]);
     }
         }
     
         for(i in 1:N){
     for(k in 1:src_no){
-    contributions[k] = log(Theta[k]) + normal_lpdf (d15N_indv| mu_N, sigma_N[k]);
+    contributions[k] = log(Theta[k]) + normal_lpdf (d15N_ind| mu_N, sigma_N[k]);
     }
         }
-            target += log_sum_exp(contributions);
-        }
-}
-        "
+        
+    target += log_sum_exp(contributions);
+        
+    }
+        
+"
 
     ,fill=TRUE)
-    sink()
+sink()
     
-    
+QPAlist <- list(d13C_ind=(y_d13C), d15N_ind=(y_d15N), N= length(y_d13C), src_no=3,
+                src_C=(d13C_sources), SD_src_C=(sigma13C_sources), 
+                src_N = (d15N_soruces), SD_src_N=(sigma13N_sources))
+
+QPA_FW <- stan(file='QPA_FW.stan', data= QPAlist,
+               warmup=98000,
+               chains=4, iter= 100000)    
     
     
     
