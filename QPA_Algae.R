@@ -211,9 +211,9 @@ data{
     
     int <lower=0> src_no; // Number of posible basal resources
     vector [src_no] src_C; // Mean value of 13 Carbon in each basal resources
-    vector [src_no] SD_src_C; // Standar deviation value of 13 Carbon in each basal resources
+    vector [src_no] SD_src_C; // Standard deviation of 13 Carbon in each basal resources
     vector [src_no] src_N; // Mean value of 15 Nitrogen in each basal resources
-    vector [src_no] SD_src_N; // Standar deviation value value of 15 Nitrogen in each basal resources
+    vector [src_no] SD_src_N; // Standard deviation of 15 Nitrogen in each basal resources
     }
     
 parameters{
@@ -225,8 +225,10 @@ parameters{
     ordered [src_no] src_C_mean;
     ordered [src_no] src_N_mean;
     simplex [src_no] Theta;
-    vector <lower=0> [src_no] e_C; // residual error Jackson et al. 2009
-    vector <lower=0> [src_no] e_N; // residual error Jackson et al. 2009
+    vector <lower=0> [src_no] e_C;  // residual error representing additional unquantified
+                                    // variation between individual; normally distributed with
+                                    // mean = 0 and standard deviation= ??. (Jackson et al. 2009)
+    vector <lower=0> [src_no] e_N;  // Residual error Jackson et al. 2009
     vector [src_no] sigma_C;
     vector [src_no] sigma_N;
     }
