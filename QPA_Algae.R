@@ -201,22 +201,19 @@ print(sources_QPA, digits=2)
 
 # src= Sources
 
-
-
-
 sink("QPA_FW.stan")
 cat("
 
 data{
     int <lower=1> N; // Number of individuals
-    vector [N] d13C_ind; // 13 Carbon signature for each Individual
-    vector [N] d15N_ind; // 15 Nitrogen signature for each Individual
+    vector [N] d13C_ind; // 13Carbon signature for each Individual
+    vector [N] d15N_ind; // 15Nitrogen signature for each Individual
     
     int <lower=0> src_no; // Number of posible basal resources
     vector [src_no] src_C; // Mean value of 13 Carbon in each basal resources
-    vector [src_no] SD_src_C; // SD value of 13 Carbon in each basal resources
+    vector [src_no] SD_src_C; // Standar deviation value of 13 Carbon in each basal resources
     vector [src_no] src_N; // Mean value of 15 Nitrogen in each basal resources
-    vector [src_no] SD_src_N; // SD value of 15 Nitrogen in each basal resources
+    vector [src_no] SD_src_N; // Standar deviation value value of 15 Nitrogen in each basal resources
     }
     
 parameters{
@@ -240,7 +237,7 @@ transformed parameters{
     vector [src_no] mu_N;
     vector [src_no] Theta2;
     vector [src_no] Theta_mean;
-    vector [src_no] ilr_global;
+    vector [src_no] ilr.global;
     
     // 13C Stable Isotopes
     for (k in 1:src_no){
@@ -257,23 +254,25 @@ transformed parameters{
     Theta2[k] <- Theta[k]^2;
     }
     
-    // ilr transform of global proportions (Theta) same MIXSIAR and Egozcue 2003 (pages 296)
+    // draw p.global (global proportion means) from an uninformative Dirichlet,
+    // then ilr.global is the ILR-transform of p.global. Egozcue 2003 (pages 296)
+    // Pavel -> Theta.  
     for(k in 1:(src_no - 1)){
     Theta_mean <- rows_dot_self(Theta[k]) ^ (1/k);
-    ilr_global[k] <- sqrt(k/(k+1)) * log(Theta_mean[k]/Theta[k+1]);
+    ilr.global[k] <- sqrt(k/(k+1)) * log(Theta_mean[k]/Theta[k+1]);
     }
     
     // Dont generate individual deviates from the global mean, but keep same model structure
     for(i in 1:N){
     for(src in 1:(n.sources - 1)){
-        ilr_ind[i,src] <- 0;
-        ilr_total[i,src] <- ilr_global[src] + ilr_ind[i,src]; // add all effects togeter for each individual
+        ilr.ind[i,src] <- 0;
+        ilr.total[i,src] <- ilr.global[src] + ilr.ind[i,src]; // add all effects togeter for each individual
         }
     }
 }
 
 model{
-vector[src_no] contributions;
+    vector[src_no] contributions;
 
 // priors
     Theta ~ dirichlet(rep_vector(1, src_no));
@@ -285,10 +284,9 @@ vector[src_no] contributions;
     src_N_mean[k] ~ normal (src_N, SD_src_N);
     }
     
-    DeltaC ~ normal(0.39, 1.14);
-    DeltaN ~ normal(3.4, 0.99);
-    
-    L ~ uniform (0,6)       // Trophic level ranges from 0 to 6
+    DeltaC ~ normal(-0.41, 1.14);   // (Vander Zanden and Rasmussen (2001)
+    DeltaN ~ normal(0.6, 1.7);      // Bunn, Leigh, & Jardine, (2013)
+    L ~ uniform (0,5)               // Trophic level ranges from 0 to 5 
     
 // likelihood
 
