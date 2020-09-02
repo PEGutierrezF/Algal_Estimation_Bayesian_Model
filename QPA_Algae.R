@@ -259,14 +259,14 @@ transformed parameters{
     // Pavel -> Theta.  
     for(k in 1:(src_no - 1)){
     Theta_mean <- rows_dot_self(Theta[k]) ^ (1/k);
-    ilr.global[k] <- sqrt(k/(k+1)) * log(Theta_mean[k]/Theta[k+1]);
+    ilr.global[k] <- sqrt(k/(k+1)) * log(Theta_mean[k]/Theta[k+1]); // page 296, Egozcue 2003
     }
     
-    // Dont generate individual deviates from the global mean, but keep same model structure
+    // DON'T generate individual deviates from the global/region/pack mean (but keep same model structure)
     for(i in 1:N){
     for(src in 1:(n.sources - 1)){
         ilr.ind[i,src] <- 0;
-        ilr.total[i,src] <- ilr.global[src] + ilr.ind[i,src]; // add all effects togeter for each individual
+        ilr.total[i,src] <- ilr.global[src] + ilr.ind[i,src]; // add all effects together for each individual (in ilr-space)
         }
     }
 }
@@ -300,13 +300,13 @@ model{
     
     for(i in 1:N){
     for(k in 1:src_no){
-    contributions[k] = log(Theta[k]) + normal_lpdf (d13C_ind| mu_C, sigma_C[k]);
+    contributions[k] = log(Theta[k]) + normal_lpdf (d13C_ind | mu_C, sigma_C[k]);
     }
         }
     
         for(i in 1:N){
     for(k in 1:src_no){
-    contributions[k] = log(Theta[k]) + normal_lpdf (d15N_ind| mu_N, sigma_N[k]);
+    contributions[k] = log(Theta[k]) + normal_lpdf (d15N_ind | mu_N, sigma_N[k]);
     }
         }
         
