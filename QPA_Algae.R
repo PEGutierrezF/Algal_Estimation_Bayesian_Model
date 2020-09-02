@@ -263,7 +263,7 @@ transformed parameters{
     // Pavel: gmean = Theta, k = src.  
     for(k in 1:(src_no - 1)){
     Theta_mean = rows_dot_self(Theta[k])^(1/k);
-    ilr_global[k] = sqrt(k/(k+1)) * log(Theta_mean[k]/Theta[k+1]); // page 296, Egozcue 2003
+    ilr_global[k] = sqrt(k/(k+1)) * log(Theta_mean[k] / Theta[k+1]); // page 296, Egozcue 2003
     }
     
     // DON'T generate individual deviates from the global/region/pack mean (but keep same model structure)
