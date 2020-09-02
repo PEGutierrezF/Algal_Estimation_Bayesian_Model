@@ -222,15 +222,16 @@ parameters{
     real <lower=0> DeltaN;
     real <lower=0> L;   // Trophic Level
     
-    ordered [src_no] src_C_mean;
+    ordered [src_no] src_C_mean; // An ordered vector type in Stan represents a vector whose entries are sorted in ascending order
     ordered [src_no] src_N_mean;
-    simplex [src_no] Theta;
+    simplex [src_no] Theta; // Is a vector with non-negative values whose entries sum to 1
     
     // residual error (e_) representing additional unquantified
     // variation between individual; normally distributed with
     // mean = 0 and standard deviation= ??. (Jackson et al. 2009)
     vector <lower=0> [src_no] e_C;  
     vector <lower=0> [src_no] e_N;
+    
     vector [src_no] sigma_C;
     vector [src_no] sigma_N;
     }
@@ -290,7 +291,7 @@ model{
     
     DeltaC ~ normal(-0.41, 1.14);   // (Vander Zanden and Rasmussen (2001)
     DeltaN ~ normal(0.6, 1.7);      // Bunn, Leigh, & Jardine, (2013)
-    L ~ uniform (0,5)               // Trophic level ranges from 0 to 5 
+    L ~ uniform (0,5);               // Trophic level ranges from 0 to 5 
     
 // likelihood
 
