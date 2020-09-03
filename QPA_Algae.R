@@ -341,8 +341,7 @@ QPAlist <- list(d13C_ind=(QPA_Feb$d13C_ind), d15N_ind=(QPA_Feb$d15N_ind),
                 src_N = (sources_QPA_Feb$meand15NPl), SD_src_N=(sources_QPA_Feb$SDd15N))
 
 QPA_FW <- stan(file='QPA_FoodWeb.stan', data= QPAlist,
-               warmup=98000,
-               chains=4, iter= 1000)    
+               warmup=98000, chains=4, iter= 1000)    
     
     
     

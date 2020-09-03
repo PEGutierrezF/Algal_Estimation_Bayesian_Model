@@ -110,8 +110,12 @@ model{
     contributions[k] = log(Theta[k]) + normal_lpdf (d15N_ind | mu_N, sigma_N[k]);
     }
         }
-        
-    target += log_sum_exp(contributions);
+    
+    // The log density increment statement (target +=) is used to add log_sum_exp(contributions)
+    // to the log density defined by the rest of the program    
+    // log density Jacobian adjustment
+    
+    target += log_sum_exp(contributions);  
         
     }
         
