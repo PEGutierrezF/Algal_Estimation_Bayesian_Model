@@ -24,7 +24,7 @@ parameters{
     
     // residual error (e_) representing additional unquantified
     // variation between individual; normally distributed with
-    // mean = 0 and standard deviation= s. (Jackson et al. 2009)
+    // mean = 0 and standard deviation= ??. (Jackson et al. 2009)
     vector <lower=0> [src_no] e_C;  
     vector <lower=0> [src_no] e_N;
     
