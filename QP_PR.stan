@@ -19,13 +19,13 @@
    
     //partial pooling
     real mu_d13C_A;
-    real sd_d13C_A;
+    real <lower=0> sd_d13C_A;
    
     real mu_d15N_A;
-    real sd_d15N_A;
+    real <lower=0> sd_d15N_A;
    
-    real mu_F_T;
-    real sd_F_T;
+    //real  <lower=0, upper=1> mu_F_T;
+    //real <lower=0> sd_F_T;
    
     real <lower=0> sigma_C;         // Distribution
     real <lower=0> sigma_N;         // Distribution
@@ -43,18 +43,18 @@
     sd_d15N_A~ normal(0, 10);
     d15N_A ~ normal(mu_d15N_A, sd_d15N_A);
    
-    mu_F_T ~ normal(0.5, 0.5); // no estoy muy seguro de este valor. Estoy dandole uno bastante amplio si va de 0 a 1
-    sd_F_T ~ normal (0, 0.1);
-    F_T ~ normal(mu_F_T, sd_F_T);
+    //mu_F_T ~ normal(0.5, 0.5); // no estoy muy seguro de este valor. Estoy dandole uno bastante amplio si va de 0 a 1
+    //sd_F_T ~ normal (0, 1);
+    F_T ~ beta (1, 1); // uniform prior for every value between 0 - 1
 
     //likelihood
     for(i in 1:N){
-    d13C_P[i] ~ normal ((d13C_A[Date[i]]) * (1- (F_T[Date[i]])) +
+    d13C_P[i] ~ normal ((d13C_A[Date[i]]) * (1- (F_T[Date[i]])) + // Equation 2 Vlah et al. (2018)
                             d13C_T[i] * (F_T[Date[i]]), sigma_C);
     }
    
     for (i in 1:N){
-    d15N_P[i] ~ normal ((d15N_A[Date[i]]) * (1- (F_T[Date[i]])) +
+    d15N_P[i] ~ normal ((d15N_A[Date[i]]) * (1- (F_T[Date[i]])) + // Equation 2 Vlah et al. (2018)
                             d15N_T[i] * (F_T[Date[i]]), sigma_N);
     }
    

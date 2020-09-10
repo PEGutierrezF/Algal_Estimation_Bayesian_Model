@@ -9,7 +9,7 @@
 #--------------------------------------------
 #
 
-options(scipen=999) ## Cancel the scientific notation
+#options(scipen=999) ## Cancel the scientific notation
 
 #Loading required packages
 library(ggplot2)
@@ -20,8 +20,11 @@ rstan_options(auto_write = TRUE)##To avoid recompilation of unchanged Stan progr
 options(mc.cores = parallel::detectCores()) ## Le dice que use los nucleos disponibles para el analisis
 Sys.setenv(LOCAL_CPPFLAGS = '-march=native') ## Rstan recommend this for improved execution time  
 
+# setwd ("C:/Users/Pavel/Documents/R_ejercicio/ecomodel/isotope_mixing/puerto_rico") 
+
+
 sources <- read.csv("sourcesQP.csv")
-sources
+head(sources)
 
 sink("QP_PR.stan")
 cat("
@@ -45,13 +48,13 @@ cat("
    
     //partial pooling
     real mu_d13C_A;
-    real sd_d13C_A;
+    real <lower=0> sd_d13C_A;
    
     real mu_d15N_A;
-    real sd_d15N_A;
+    real <lower=0> sd_d15N_A;
    
-    real mu_F_T;
-    real sd_F_T;
+    //real  <lower=0, upper=1> mu_F_T;
+    //real <lower=0> sd_F_T;
    
     real <lower=0> sigma_C;         // Distribution
     real <lower=0> sigma_N;         // Distribution
@@ -69,18 +72,18 @@ cat("
     sd_d15N_A~ normal(0, 10);
     d15N_A ~ normal(mu_d15N_A, sd_d15N_A);
    
-    mu_F_T ~ normal(0.5, 0.5); // no estoy muy seguro de este valor. Estoy dandole uno bastante amplio si va de 0 a 1
-    sd_F_T ~ normal (0, 0.1);
-    F_T ~ normal(mu_F_T, sd_F_T);
+    //mu_F_T ~ normal(0.5, 0.5); // no estoy muy seguro de este valor. Estoy dandole uno bastante amplio si va de 0 a 1
+    //sd_F_T ~ normal (0, 1);
+    F_T ~ beta (1, 1); // uniform prior for every value between 0 - 1
 
     //likelihood
     for(i in 1:N){
-    d13C_P[i] ~ normal ((d13C_A[Date[i]]) * (1- (F_T[Date[i]])) +
+    d13C_P[i] ~ normal ((d13C_A[Date[i]]) * (1- (F_T[Date[i]])) + // Equation 2 Vlah et al. (2018)
                             d13C_T[i] * (F_T[Date[i]]), sigma_C);
     }
    
     for (i in 1:N){
-    d15N_P[i] ~ normal ((d15N_A[Date[i]]) * (1- (F_T[Date[i]])) +
+    d15N_P[i] ~ normal ((d15N_A[Date[i]]) * (1- (F_T[Date[i]])) + // Equation 2 Vlah et al. (2018)
                             d15N_T[i] * (F_T[Date[i]]), sigma_N);
     }
    
@@ -97,18 +100,16 @@ sink()
 # delta13C_P =  Delta Periphyton (Biofilm), same for Nitrogen
 # delta13C_T = Delta Terrestrial, same for Nitrogen
 
-QP <- list(d13C_P=(sources$delta13C_P), d15N_P=(sources$delta15N_P), 
+## El error era aquí en la formación de la lista. Estabas diciendole mal que datos eran las Fechas (Date)
+datalist_QP <- list(d13C_P=(sources$delta13C_P), d15N_P=(sources$delta15N_P), 
                        d13C_T = (sources$delta13C_T), d15N_T = (sources$delta15N_T), 
-                       N = length(sources$delta13C_P), Date =(sources$Date_no), Date_no = 4)
+                       N = length(sources$delta13C_P), Date =(sources$Use), Date_no = 4)
 
 
-QPCA <- rstan::stan(file = "QP_PR.stan", data = QP,
-                    control= list(adapt_delta = 0.99, max_treedepth=12),
-                    chains = 4, iter = 5000) # warmup= 30000,
-
-QPCA
-
-
+QPCA <- stan(file = "QP_PR.stan", data = datalist_QP,
+                    #control= list(adapt_delta = 0.999, max_treedepth=12),
+                    warmup= 48000,
+                    chains = 4, iter = 50000)
 # Plot results ------------------------------------------------------------
 
 traceplot(QPCA)
@@ -117,82 +118,85 @@ print(QPCA)
 
 # Sources -----------------------------------------------------------------
 
-mod_sources_corr <- extract(QPCA)
-sources_cor <- mod_sources_corr
+sources_cor <- extract(QPCA)
 head(sources_cor) 
 
 sources_QPA <- data.frame (
+    February_2018 = c (
+        mean(sources_cor$d13C_A[,1]),
+        sd(sources_cor$d13C_A[,1]),
+        mean(sources_cor$d15N_A[,1]),
+        sd(sources_cor$d15N_A[,1]),
+        
+        mean(sources$delta13C_P[sources$Use=="1"]), 
+        sd(sources$delta13C_P[sources$Use=="1"]),
+        mean(sources$delta15N_P[sources$Use=="1"]), 
+        sd(sources$delta15N_P[sources$Use=="1"]), 
+        
+        mean(sources$delta13C_T[sources$Use=="1"]), 
+        sd(sources$delta13C_T[sources$Use=="1"]),
+        mean(sources$delta15N_T[sources$Use=="1"]), 
+        sd(sources$delta15N_T[sources$Use=="1"])
+        ),
     
-    February.2017 = c(
-            mean(sources_cor$d13C_A),
-            mean(sources_cor$d15N_A),
-            sd(sources_cor$d13C_A),
-            sd(sources_cor$d15N_A),
+    November_2018 = c (
+        mean(sources_cor$d13C_A[,2]),
+        sd(sources_cor$d13C_A[,2]),
+        mean(sources_cor$d15N_A[,2]),
+        sd(sources_cor$d15N_A[,2]),
+        
+        mean(sources$delta13C_P[sources$Use=="2"]), 
+        sd(sources$delta13C_P[sources$Use=="2"]),
+        mean(sources$delta15N_P[sources$Use=="2"]), 
+        sd(sources$delta15N_P[sources$Use=="2"]), 
+        
+        mean(sources$delta13C_T[sources$Use=="2"]), 
+        sd(sources$delta13C_T[sources$Use=="2"]),
+        mean(sources$delta15N_T[sources$Use=="2"]), 
+        sd(sources$delta15N_T[sources$Use=="2"])
+        ),
+    June_2018 = c(
+        mean(sources_cor$d13C_A[,3]),
+        sd(sources_cor$d13C_A[,3]),
+        mean(sources_cor$d15N_A[,3]),
+        sd(sources_cor$d15N_A[,3]),
+        
+        mean(sources$delta13C_P[sources$Use=="3"]), 
+        sd(sources$delta13C_P[sources$Use=="3"]),
+        mean(sources$delta15N_P[sources$Use=="3"]), 
+        sd(sources$delta15N_P[sources$Use=="3"]), 
+        
+        mean(sources$delta13C_T[sources$Use=="3"]), 
+        sd(sources$delta13C_T[sources$Use=="3"]),
+        mean(sources$delta15N_T[sources$Use=="3"]), 
+        sd(sources$delta15N_T[sources$Use=="3"])
+        ),
 
-            mean(sources$delta13C_P[sources$Date_no=="1"]), 
-            mean(sources$delta15N_P[sources$Date_no=="1"]), 
-            sd(sources$delta13C_P[sources$Date_no=="1"]), 
-            sd(sources$delta15N_P[sources$Date_no=="1"]),
-            
-            mean(sources$delta13C_T[sources$Date_no=="1"]), 
-            mean(sources$delta15N_T[sources$Date_no=="1"]), 
-            sd(sources$delta13C_T[sources$Date_no=="1"]), 
-            sd(sources$delta15N_T[sources$Date_no=="1"])),
+    February_2019= c(
+        mean(sources_cor$d13C_A[,4]),
+        sd(sources_cor$d13C_A[,4]),
+        mean(sources_cor$d15N_A[,4]),
+        sd(sources_cor$d15N_A[,4]),
     
-    November.2017 = c(
-        mean(sources_cor$d13C_A), 
-        mean(sources_cor$d15N_A),
-        sd(sources_cor$d13C_A),
-        sd(sources_cor$d15N_A),
-        
-        mean(sources$delta13C_P[sources$Date_no=="2"]), 
-        mean(sources$delta15N_P[sources$Date_no=="2"]), 
-        sd(sources$delta13C_P[sources$Date_no=="2"]), 
-        sd(sources$delta15N_P[sources$Date_no=="2"]),
-        
-        mean(sources$delta13C_T[sources$Date_no=="2"]), 
-        mean(sources$delta15N_T[sources$Date_no=="2"]), 
-        sd(sources$delta13C_T[sources$Date_no=="2"]), 
-        sd(sources$delta15N_T[sources$Date_no=="2"])),
-   
-    June.2018= c(
-        mean(sources_cor$d13C_A),
-        mean(sources_cor$d15N_A),
-        sd(sources_cor$d13C_A),
-        sd(sources_cor$d15N_A),
-        
-        mean(sources$delta13C_P[sources$Date_no=="3"]), 
-        mean(sources$delta15N_P[sources$Date_no=="3"]), 
-        sd(sources$delta13C_P[sources$Date_no=="3"]), 
-        sd(sources$delta15N_P[sources$Date_no=="3"]),
-        
-        mean(sources$delta13C_T[sources$Date_no=="3"]), 
-        mean(sources$delta15N_T[sources$Date_no=="3"]), 
-        sd(sources$delta13C_T[sources$Date_no=="3"]), 
-        sd(sources$delta15N_T[sources$Date_no=="3"])),
+        mean(sources$delta13C_P[sources$Use=="4"]), 
+        sd(sources$delta13C_P[sources$Use=="4"]),
+        mean(sources$delta15N_P[sources$Use=="4"]), 
+        sd(sources$delta15N_P[sources$Use=="4"]), 
     
-    February.2019= c(
-        mean(sources_cor$d13C_A),
-        mean(sources_cor$d15N_A),
-        sd(sources_cor$d13C_A),
-        sd(sources_cor$d15N_A),
-        
-        mean(sources$delta13C_P[sources$Date_no=="4"]), 
-        mean(sources$delta15N_P[sources$Date_no=="4"]), 
-        sd(sources$delta13C_P[sources$Date_no=="4"]), 
-        sd(sources$delta15N_P[sources$Date_no=="4"]),
-        
-        mean(sources$delta13C_T[sources$Date_no=="4"]), 
-        mean(sources$delta15N_T[sources$Date_no=="4"]), 
-        sd(sources$delta13C_T[sources$Date_no=="4"]), 
-        sd(sources$delta15N_T[sources$Date_no=="4"]))
-)
+        mean(sources$delta13C_T[sources$Use=="4"]), 
+        sd(sources$delta13C_T[sources$Use=="4"]),
+        mean(sources$delta15N_T[sources$Use=="4"]), 
+        sd(sources$delta15N_T[sources$Use=="4"])
+     )
+    )
 
-rownames(sources_QPA) <- c("d13C_A","d15N_A", "sd_d13C_A", "sd_d15N_A", "d13C_P",
-                         "d15N_P", "sd_d13C_P", "sd_d15N_P", "d13C_T", "d15N_T",
-                         "sd_d13C_T", "sd_d15N_T")
 
+rownames(sources_QPA) <- c("d13C_A","sd_d13C_A","d15N_A", "sd_d15N_A",
+                           "d13C_P","sd_d13C_P", "d15N_P", "sd_d15N_P", 
+                           "d13C_T", "sd_d13C_T", "d15N_T","sd_d15N_T")
+sources_QPA <-as.data.frame(t(as.matrix(sources_QPA)))
 print(sources_QPA, digits=2)
+write.csv(sources_QPA, file= "Sources_QPA_results.csv") ## export as csv for further results
 
 
 ###########################################################################
