@@ -201,6 +201,7 @@ print(sources_QPA, digits=2)
 write.csv(sources_QPA, file= "Sources_QPA_results.csv") ## export as csv for further results
 
 
+
 ###########################################################################
 # Model to TEF and Food webs ----------------------------------------------
 ###########################################################################
@@ -215,7 +216,7 @@ data{
     vector [N] d13C_ind; // 13Carbon signature for each Individual
     vector [N] d15N_ind; // 15Nitrogen signature for each Individual
     
-    int <lower=0> src_no; // Number of posible basal resources
+    int src_no; // Number of posible basal resources
     vector [src_no] src_C; // Mean value of 13 Carbon in each basal resources
     vector [src_no] SD_src_C; // Standard deviation of 13 Carbon in each basal resources
     vector [src_no] src_N; // Mean value of 15 Nitrogen in each basal resources
@@ -224,132 +225,81 @@ data{
     
 parameters{
     
-    real <lower=0> DeltaC;
-    real <lower=0> DeltaN;
+    real Delta_C;
+    real Delta_N;
     real <lower=0> L;   // Trophic Level
     
     ordered [src_no] src_C_mean; // An ordered vector type in Stan represents a vector whose entries are sorted in ascending order
     ordered [src_no] src_N_mean;
     simplex [src_no] Theta; // Is a vector with non-negative values whose entries sum to 1
-    
-    // residual error (e_) representing additional unquantified
-    // variation between individual; normally distributed with
-    // mean = 0 and standard deviation= ??. (Jackson et al. 2009)
-    vector <lower=0> [src_no] e_C;  
-    vector <lower=0> [src_no] e_N;
-    
-    vector [src_no] sigma_C;
-    vector [src_no] sigma_N;
+
+    vector <lower = 0>[src_no] sigma_C;
+    vector <lower = 0>[src_no] sigma_N;
     }
-    
-transformed parameters{
-    
-    vector [src_no] mu_C;
-    vector [src_no] mu_N;
-    vector [src_no] Theta2;
-    vector [src_no] Theta_mean;
-    vector [src_no] ilr_global;
-    
-    // 13C Stable Isotopes
-    for (k in 1:src_no){
-    mu_C[k] = src_C_mean[k] + DeltaC * L;
-    }
-    
-    // 15N Stable Isotopes
-    for (k in 1:src_no){
-    mu_N[k] = src_N_mean[k] + DeltaN * L;
-    }
-    
-    // to integrate proportion on sigma estimation
-    for(k in 1:src_no){
-    Theta2[k] = Theta[k]^2;
-    }
-    
-    // draw p.global (global proportion means) from an uninformative Dirichlet,
-    // then ilr_global is the ILR-transform of p.global. Egozcue 2003 (pages 296)
-    // Pavel: gmean = Theta, k = src.  
-    for(k in 1:(src_no - 1)){
-    Theta_mean = rows_dot_self(Theta[k])^(1/k);
-    ilr_global[k] = sqrt(k/(k+1)) * log(Theta_mean[k] / Theta[k+1]); // page 296, Egozcue 2003
-    }
-    
-    // DON'T generate individual deviates from the global/region/pack mean (but keep same model structure)
-    for(i in 1:N){
-    for(src in 1:(n.sources-1)) {
-        ilr_ind[i,src] = 0;
-        ilr_total[i,src] = ilr_global[src] + ilr_ind[i,src]; // add all effects together for each individual (in ilr-space)
-        }
-    }
-}
 
 model{
     vector[src_no] contributions;
 
-// priors
-    Theta ~ dirichlet(rep_vector(1, src_no));
-    for(k in 1:src_no){
-    src_C_mean[k] ~ normal (src_C, SD_src_C);
-    }
+  // priors
+  for (k in 1: src_no){
+  src_C_mean[k] ~ normal(src_C[k], SD_src_C[k]); //values from field Data samples of sources
+  }
+  
+  for (k in 1: src_no){
+  src_N_mean[k] ~ normal(src_N[k], SD_src_N[k]); //values from field Data samples of sources
+  }
+  
+    Theta ~ dirichlet(rep_vector(1.0, src_no)); // Uniform prior
     
-    for(k in 1:src_no){
-    src_N_mean[k] ~ normal (src_N, SD_src_N);
-    }
-    
-    DeltaC ~ normal(-0.41, 1.14);   // (Vander Zanden and Rasmussen (2001)
-    DeltaN ~ normal(0.6, 1.7);      // Bunn, Leigh, & Jardine, (2013)
+    Delta_C ~ normal(0.41, 1.14);   // Vander Zanden and Rasmussen (2001)
+    Delta_N ~ normal(0.6, 1.7);      // Bunn, Leigh, & Jardine, (2013)
     L ~ uniform (0,5);               // Trophic level ranges from 0 to 5 
     
+    sigma_C ~ normal(0,10);
+    sigma_N ~ normal(0,10);
+  
 // likelihood
 
-    for(k in 1:src_no){
-    sigma_C[k] ~ normal(SD_src_C[K] * Theta2[k], e_C);
+  for(i in 1:N) {
+    for(k in 1:src_no) {
+      contributions[k] = log(Theta[k]) + normal_lpdf(d13C_ind[i] | (src_C_mean[k]+(Delta_C*L)), sigma_C[k]);
     }
+    target += log_sum_exp(contributions);
+  }
     
-        for(k in 1:src_no){
-    sigma_N[k] ~ normal(SD_src_N[K] * Theta2[k], e_N);
-        }
-    
-    for(i in 1:N){
-    for(k in 1:src_no){
-    contributions[k] = log(Theta[k]) + normal_lpdf (d13C_ind | mu_C, sigma_C[k]);
+   for(i in 1:N) {
+    for(k in 1:src_no) {
+      contributions[k] = log(Theta[k]) + normal_lpdf(d15N_ind[i] | (src_N_mean[k]+(Delta_N*L)), sigma_N[k]);
     }
-        }
-    
-        for(i in 1:N){
-    for(k in 1:src_no){
-    contributions[k] = log(Theta[k]) + normal_lpdf (d15N_ind | mu_N, sigma_N[k]);
-    }
-        }
-    
     // The log density increment statement (target +=) is used to add log_sum_exp(contributions)
     // to the log density defined by the rest of the program    
     // log density Jacobian adjustment
-    
-    target += log_sum_exp(contributions);  
-        
-    }
-        
-"
+    target += log_sum_exp(contributions);
+   }
+}
+   
+    "
 
-    ,fill=TRUE)
+,fill=TRUE)
 sink()
 
-QPA_Feb <- read.csv("Stan_QPA/QPA_Feb.csv")
+QPA_Feb <- read.csv("Stan_QPA/QPA_Feb.csv", header = TRUE, encoding = "utf16")
 QPA_Feb 
 
-sources_QPA_Feb <- read.csv("Stan_QPA/sources_QPA_Feb.csv")
+sources_QPA_Feb <- read.csv("Stan_QPA/sources_QPA_Feb.csv", header = TRUE, encoding = "utf16")
 sources_QPA_Feb 
 
 
 QPAlist <- list(d13C_ind=(QPA_Feb$d13C_ind), d15N_ind=(QPA_Feb$d15N_ind), 
                 N= length(QPA_Feb$d13C_ind), src_no=3,
-                src_C=(sources_QPA_Feb$meand13CPl), SD_src_C=(sources_QPA_Feb$SDd13C), 
-                src_N = (sources_QPA_Feb$meand15NPl), SD_src_N=(sources_QPA_Feb$SDd15N))
+                src_C =(sources_QPA_Feb$meand13C), SD_src_C=(sources_QPA_Feb$SDd13C), 
+                src_N = (sources_QPA_Feb$meand15N), SD_src_N=(sources_QPA_Feb$SDd15N))
 
 QPA_FW <- stan(file='QPA_FoodWeb.stan', data= QPAlist,
-               warmup=98000, chains=4, iter= 1000)    
+               warmup=98000, chains=4, iter= 10000)    
     
-    
+traceplot(QPA_FW)
+print(QPA_FW)
     
     
 
