@@ -101,7 +101,6 @@ sink()
 # delta13C_P =  Delta Periphyton (Biofilm), same for Nitrogen
 # delta13C_T = Delta Terrestrial, same for Nitrogen
 
-## El error era aquí en la formación de la lista. Estabas diciendole mal que datos eran las Fechas (Date)
 datalist_QP <- list(d13C_P=(sources$delta13C_P), d15N_P=(sources$delta15N_P), 
                        d13C_T = (sources$delta13C_T), d15N_T = (sources$delta15N_T), 
                        N = length(sources$delta13C_P), Date =(sources$Use), Date_no = 4)
@@ -239,21 +238,20 @@ parameters{
 
 model{
     vector[src_no] contributions;
-
   // priors
-  for (k in 1: src_no){
+  for (k in 1:src_no){
   src_C_mean[k] ~ normal(src_C[k], SD_src_C[k]); //values from field Data samples of sources
   }
   
-  for (k in 1: src_no){
+  for (k in 1:src_no){
   src_N_mean[k] ~ normal(src_N[k], SD_src_N[k]); //values from field Data samples of sources
   }
   
-    Theta ~ dirichlet(rep_vector(1.0, src_no)); // Uniform prior
+    Theta ~ dirichlet(rep_vector(1, src_no)); // Uniform prior
     
     Delta_C ~ normal(0.41, 1.14);   // Vander Zanden and Rasmussen (2001)
     Delta_N ~ normal(0.6, 1.7);      // Bunn, Leigh, & Jardine, (2013)
-    L ~ uniform (0,5);               // Trophic level ranges from 0 to 5 
+    L ~ uniform (0,10);               // Trophic level ranges from 0 to 10 
     
     sigma_C ~ normal(0,10);
     sigma_N ~ normal(0,10);
@@ -271,11 +269,9 @@ model{
     for(k in 1:src_no) {
       contributions[k] = log(Theta[k]) + normal_lpdf(d15N_ind[i] | (src_N_mean[k]+(Delta_N*L)), sigma_N[k]);
     }
-    // The log density increment statement (target +=) is used to add log_sum_exp(contributions)
-    // to the log density defined by the rest of the program    
-    // log density Jacobian adjustment
     target += log_sum_exp(contributions);
    }
+    
 }
    
     "
@@ -290,16 +286,18 @@ sources_QPA_Feb <- read.csv("Stan_QPA/sources_QPA_Feb.csv", header = TRUE, encod
 sources_QPA_Feb 
 
 
-QPAlist <- list(d13C_ind=(QPA_Feb$d13C_ind), d15N_ind=(QPA_Feb$d15N_ind), 
-                N= length(QPA_Feb$d13C_ind), src_no=3,
+# Glossosomatidae ---------------------------------------------------------
+
+QPAlist_G <- list(d13C_ind= (QPA_Feb$d13C_ind[QPA_Feb$Code=="1"]), d15N_ind= (QPA_Feb$d15N_ind[QPA_Feb$Code=="1"]), 
+                N = length(QPA_Feb$d13C_ind[QPA_Feb$Code=="1"]), src_no = 3,
                 src_C =(sources_QPA_Feb$meand13C), SD_src_C=(sources_QPA_Feb$SDd13C), 
                 src_N = (sources_QPA_Feb$meand15N), SD_src_N=(sources_QPA_Feb$SDd15N))
 
-QPA_FW <- stan(file='QPA_FoodWeb.stan', data= QPAlist,
-               warmup=98000, chains=4, iter= 10000)    
+QPA_FW_G <- stan(file='QPA_FoodWeb.stan', data= QPAlist_G,
+               warmup=9000, chains=4, iter= 10000)    
     
-traceplot(QPA_FW)
-print(QPA_FW)
-    
-    
+traceplot(QPA_FW_G)
+print(QPA_FW_G)
+
+
 
