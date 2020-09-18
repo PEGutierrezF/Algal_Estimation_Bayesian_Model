@@ -49,12 +49,12 @@
 
     //likelihood
     for(i in 1:N){
-    d13C_P[i] ~ normal ((d13C_A[Date[i]]) * (1- (F_T[Date[i]])) + // Equation 2 Vlah et al. (2018)
+    d13C_P[i] ~ normal ((d13C_A[Date[i]]) * (1- (F_T[Date[i]])) +
                             d13C_T[i] * (F_T[Date[i]]), sigma_C);
     }
    
     for (i in 1:N){
-    d15N_P[i] ~ normal ((d15N_A[Date[i]]) * (1- (F_T[Date[i]])) + // Equation 2 Vlah et al. (2018)
+    d15N_P[i] ~ normal ((d15N_A[Date[i]]) * (1- (F_T[Date[i]])) +
                             d15N_T[i] * (F_T[Date[i]]), sigma_N);
     }
    

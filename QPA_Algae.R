@@ -8,22 +8,23 @@
 #PEGF
 #--------------------------------------------
 #
-
+remotes::install_github("bgoodri/inline")
 #options(scipen=999) ## Cancel the scientific notation
 
 #Loading required packages
 library(ggplot2)
 #library (ggedit)
 library(plyr)
+library(StanHeaders)
 library(rstan)
 rstan_options(auto_write = TRUE)##To avoid recompilation of unchanged Stan programs
 options(mc.cores = parallel::detectCores()) ## Le dice que use los nucleos disponibles para el analisis
 Sys.setenv(LOCAL_CPPFLAGS = '-march=native') ## Rstan recommend this for improved execution time  
 
-# setwd ("C:/Users/Pavel/Documents/R_ejercicio/ecomodel/isotope_mixing/puerto_rico") 
+#setwd ("C:/Users/Pavel/Documents/R_ejercicio/ecomodel/isotope_mixing/puerto_rico") 
 
 
-sources <- read.csv("sourcesQP.csv")
+sources<- read.csv("sourcesQPA.csv")
 head(sources)
 
 sink("QP_PR.stan")
@@ -78,12 +79,12 @@ cat("
 
     //likelihood
     for(i in 1:N){
-    d13C_P[i] ~ normal ((d13C_A[Date[i]]) * (1- (F_T[Date[i]])) + // Equation 2 Vlah et al. (2018)
+    d13C_P[i] ~ normal ((d13C_A[Date[i]]) * (1- (F_T[Date[i]])) +
                             d13C_T[i] * (F_T[Date[i]]), sigma_C);
     }
    
     for (i in 1:N){
-    d15N_P[i] ~ normal ((d15N_A[Date[i]]) * (1- (F_T[Date[i]])) + // Equation 2 Vlah et al. (2018)
+    d15N_P[i] ~ normal ((d15N_A[Date[i]]) * (1- (F_T[Date[i]])) +
                             d15N_T[i] * (F_T[Date[i]]), sigma_N);
     }
    
@@ -110,6 +111,7 @@ QPCA <- stan(file = "QP_PR.stan", data = datalist_QP,
                     #control= list(adapt_delta = 0.999, max_treedepth=12),
                     warmup= 48000,
                     chains = 4, iter = 50000)
+
 # Plot results ------------------------------------------------------------
 
 traceplot(QPCA)
