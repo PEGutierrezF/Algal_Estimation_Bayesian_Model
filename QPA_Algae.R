@@ -8,7 +8,6 @@
 #PEGF
 #--------------------------------------------
 #
-remotes::install_github("bgoodri/inline")
 #options(scipen=999) ## Cancel the scientific notation
 
 #Loading required packages
@@ -274,9 +273,9 @@ model{
     
 }
    
-    "
+    ",
 
-,fill=TRUE)
+  fill=TRUE)
 sink()
 
 QPA_Feb <- read.csv("Stan_QPA/QPA_Feb.csv", header = TRUE, encoding = "utf16")
@@ -294,7 +293,8 @@ QPAlist_G <- list(d13C_ind= (QPA_Feb$d13C_ind[QPA_Feb$Code=="1"]), d15N_ind= (QP
                 src_N = (sources_QPA_Feb$meand15N), SD_src_N=(sources_QPA_Feb$SDd15N))
 
 QPA_FW_G <- stan(file='QPA_FoodWeb.stan', data= QPAlist_G,
-               warmup=9000, chains=4, iter= 10000)    
+                 warmup= 48000,
+                 chains = 4, iter = 50000)    
     
 traceplot(QPA_FW_G)
 print(QPA_FW_G)

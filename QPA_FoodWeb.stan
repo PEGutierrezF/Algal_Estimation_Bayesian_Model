@@ -37,11 +37,11 @@ model{
   src_N_mean[k] ~ normal(src_N[k], SD_src_N[k]); //values from field Data samples of sources
   }
   
-    Theta ~ dirichlet(rep_vector(1.0, src_no)); // Uniform prior
+    Theta ~ dirichlet(rep_vector(1, src_no)); // Uniform prior
     
     Delta_C ~ normal(0.41, 1.14);   // Vander Zanden and Rasmussen (2001)
     Delta_N ~ normal(0.6, 1.7);      // Bunn, Leigh, & Jardine, (2013)
-    L ~ uniform (0,5);               // Trophic level ranges from 0 to 5 
+    L ~ uniform (0,10);               // Trophic level ranges from 0 to 10 
     
     sigma_C ~ normal(0,10);
     sigma_N ~ normal(0,10);
