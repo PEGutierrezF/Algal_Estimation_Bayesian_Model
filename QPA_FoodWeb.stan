@@ -7,9 +7,9 @@ data{
     
     int src_no; // Number of posible basal resources
     vector [src_no] src_C; // Mean value of 13 Carbon in each basal resources
-    vector [src_no] SD_src_C; // Standard deviation of 13 Carbon in each basal resources
+    vector [src_no] sd_src_C; // Standard deviation of 13 Carbon in each basal resources
     vector [src_no] src_N; // Mean value of 15 Nitrogen in each basal resources
-    vector [src_no] SD_src_N; // Standard deviation of 15 Nitrogen in each basal resources
+    vector [src_no] sd_src_N; // Standard deviation of 15 Nitrogen in each basal resources
     }
     
 parameters{
@@ -22,22 +22,22 @@ parameters{
     ordered [src_no] src_N_mean;
     simplex [src_no] Theta; // Is a vector with non-negative values whose entries sum to 1
 
-    vector <lower = 0>[src_no] sigma_C;
-    vector <lower = 0>[src_no] sigma_N;
+    vector<lower=0>[src_no] sigma_C;
+    vector<lower=0>[src_no] sigma_N;
     }
 
 model{
     vector[src_no] contributions;
   // priors
   for (k in 1:src_no){
-  src_C_mean[k] ~ normal(src_C[k], SD_src_C[k]); //values from field Data samples of sources
+  src_C_mean[k] ~ normal(src_C[k], sd_src_C[k]); //values from field Data samples of sources
   }
   
   for (k in 1:src_no){
-  src_N_mean[k] ~ normal(src_N[k], SD_src_N[k]); //values from field Data samples of sources
+  src_N_mean[k] ~ normal(src_N[k], sd_src_N[k]); //values from field Data samples of sources
   }
   
-    Theta ~ dirichlet(rep_vector(1, src_no)); // Uniform prior
+    Theta ~dirichlet(rep_vector(1, src_no)); // Uniform prior
     
     Delta_C ~ normal(0.41, 1.14);   // Vander Zanden and Rasmussen (2001)
     Delta_N ~ normal(0.6, 1.7);      // Bunn, Leigh, & Jardine, (2013)

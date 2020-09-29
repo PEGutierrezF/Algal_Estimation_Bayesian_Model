@@ -104,7 +104,7 @@ datalist_QP <- list(d13C_P=(sources$delta13C_P), d15N_P=(sources$delta15N_P),
                        d13C_T = (sources$delta13C_T), d15N_T = (sources$delta15N_T), 
                        N = length(sources$delta13C_P), Date =(sources$Use), Date_no = 4)
 
-
+datalist_QP
 QPCA <- stan(file = "QP_PR.stan", data = datalist_QP,
                     #control= list(adapt_delta = 0.999, max_treedepth=12),
                     warmup= 48000,
@@ -216,37 +216,37 @@ data{
     
     int src_no; // Number of posible basal resources
     vector [src_no] src_C; // Mean value of 13 Carbon in each basal resources
-    vector [src_no] SD_src_C; // Standard deviation of 13 Carbon in each basal resources
+    vector [src_no] sd_src_C; // Standard deviation of 13 Carbon in each basal resources
     vector [src_no] src_N; // Mean value of 15 Nitrogen in each basal resources
-    vector [src_no] SD_src_N; // Standard deviation of 15 Nitrogen in each basal resources
+    vector [src_no] sd_src_N; // Standard deviation of 15 Nitrogen in each basal resources
     }
     
 parameters{
     
-    real Delta_C;
-    real Delta_N;
+    real <lower=0> Delta_C;
+    real <lower=0> Delta_N;
     real <lower=0> L;   // Trophic Level
     
     ordered [src_no] src_C_mean; // An ordered vector type in Stan represents a vector whose entries are sorted in ascending order
     ordered [src_no] src_N_mean;
     simplex [src_no] Theta; // Is a vector with non-negative values whose entries sum to 1
 
-    vector <lower = 0>[src_no] sigma_C;
-    vector <lower = 0>[src_no] sigma_N;
+    vector<lower=0>[src_no] sigma_C;
+    vector<lower=0>[src_no] sigma_N;
     }
 
 model{
     vector[src_no] contributions;
   // priors
   for (k in 1:src_no){
-  src_C_mean[k] ~ normal(src_C[k], SD_src_C[k]); //values from field Data samples of sources
+  src_C_mean[k] ~ normal(src_C[k], sd_src_C[k]); //values from field Data samples of sources
   }
   
   for (k in 1:src_no){
-  src_N_mean[k] ~ normal(src_N[k], SD_src_N[k]); //values from field Data samples of sources
+  src_N_mean[k] ~ normal(src_N[k], sd_src_N[k]); //values from field Data samples of sources
   }
   
-    Theta ~ dirichlet(rep_vector(1, src_no)); // Uniform prior
+    Theta ~dirichlet(rep_vector(1, src_no)); // Uniform prior
     
     Delta_C ~ normal(0.41, 1.14);   // Vander Zanden and Rasmussen (2001)
     Delta_N ~ normal(0.6, 1.7);      // Bunn, Leigh, & Jardine, (2013)
@@ -278,10 +278,10 @@ model{
   fill=TRUE)
 sink()
 
-QPA_Feb <- read.csv("Stan_QPA/QPA_Feb.csv", header = TRUE, encoding = "utf16")
+QPA_Feb <- read.csv("Stan_QPA/QPA_Feb.csv", header = TRUE, encoding = "UTF-16")
 QPA_Feb 
 
-sources_QPA_Feb <- read.csv("Stan_QPA/sources_QPA_Feb.csv", header = TRUE, encoding = "utf16")
+sources_QPA_Feb <- read.csv("Stan_QPA/sources_QPA_Feb.csv", header = TRUE, encoding = "UTF-16")
 sources_QPA_Feb 
 
 
@@ -289,15 +289,13 @@ sources_QPA_Feb
 
 QPAlist_G <- list(d13C_ind= (QPA_Feb$d13C_ind[QPA_Feb$Code=="1"]), d15N_ind= (QPA_Feb$d15N_ind[QPA_Feb$Code=="1"]), 
                 N = length(QPA_Feb$d13C_ind[QPA_Feb$Code=="1"]), src_no = 3,
-                src_C =(sources_QPA_Feb$meand13C), SD_src_C=(sources_QPA_Feb$SDd13C), 
-                src_N = (sources_QPA_Feb$meand15N), SD_src_N=(sources_QPA_Feb$SDd15N))
-
+                src_C =(sources_QPA_Feb$meand13C), sd_src_C=(sources_QPA_Feb$SDd13C), 
+                src_N = (sources_QPA_Feb$meand15N), sd_src_N=(sources_QPA_Feb$SDd15N))
+QPAlist_G
 QPA_FW_G <- stan(file='QPA_FoodWeb.stan', data= QPAlist_G,
-                 warmup= 48000,
-                 chains = 4, iter = 50000)    
+                 warmup= 1000,chains = 4, iter = 50000, 
+                 cores = min(parallel::detectCores(), 4), thin = 50)    
     
 traceplot(QPA_FW_G)
 print(QPA_FW_G)
-
-
 

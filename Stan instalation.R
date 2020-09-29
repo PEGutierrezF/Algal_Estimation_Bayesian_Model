@@ -8,6 +8,7 @@ pkgbuild::has_build_tools(debug = TRUE)
 remove.packages("rstan")
 if (file.exists(".RData")) file.remove(".RData")
 
+file.path(Sys.getenv("HOME"), ".R", ifelse(.Platform$OS.type == "windows", "Makevars.win", "Makevars"))
 M <- file.path(Sys.getenv("HOME"), ".R", ifelse(.Platform$OS.type == "windows", "Makevars.win", "Makevars"))
 file.edit(M)
 
