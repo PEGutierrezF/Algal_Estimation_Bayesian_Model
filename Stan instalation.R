@@ -29,4 +29,10 @@ install.packages("rstan", repos = "https://cloud.r-project.org/", dependencies =
 library(usethis)
 library(devtools)
 
+PATH="${RTOOLS40_HOME}\usr\bin;${PATH}"
+writeLines('PATH="${RTOOLS40_HOME}\\usr\\bin;${PATH}"', con = "~/.Renviron")
+Sys.which("make")
+## "C:\\rtools40\\usr\\bin\\make.exe"
+
+install.packages("jsonlite", type = "source")
 

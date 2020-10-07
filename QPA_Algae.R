@@ -8,7 +8,8 @@
 #PEGF
 #--------------------------------------------
 #
-#options(scipen=999) ## Cancel the scientific notation
+#optionmemory.size(max = FALSE)
+install.packages("devtools", dependencies = TRUE)
 
 #Loading required packages
 library(ggplot2)
