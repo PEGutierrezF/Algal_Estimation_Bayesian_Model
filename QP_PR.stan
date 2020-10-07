@@ -1,111 +1,64 @@
-   Code d13C_ind d15N_ind
-1     1   -39.47     2.89
-2     1   -39.50     2.13
-3     2   -32.41     5.53
-4     2   -32.30     7.35
-5     3   -27.26     4.61
-6     3   -27.24     4.22
-7     4   -27.39     3.42
-8     4   -27.53     2.93
-9     4   -27.52     2.98
-10    4   -27.26     2.73
-11    5   -27.63     2.97
-12    5   -27.65     3.21
-13    5   -27.27     2.20
-14    5   -26.30     2.06
-15    6   -28.86     4.56
-16    6   -26.95     4.86
-17    6   -27.78     4.87
-18    6   -28.07     4.90
-19    7   -25.62     6.27
-20    7   -25.58     5.97
-21    7   -25.43     5.50
-22    7   -25.56     6.41
-23    8   -26.98     4.82
-24    8   -26.92     4.29
-25    8   -26.94     4.89
-26    8   -26.79     4.93
-27    9   -25.94     4.02
-28    9   -26.40     4.87
-29    9   -25.04     3.30
-30    9   -26.24     4.21
-31   10   -27.49     6.57
-32   10   -27.37     6.82
-33   10   -27.34     5.76
-34   10   -27.39     6.86
-      Source meand13C meand15N    SDd13C    SDd15N
-1 LeafLitter   -32.08     0.56 0.1708996 0.3189148
-2    Biofilm   -31.69     6.06 0.2126633 0.3295208
-3      Algae   -26.58     8.01 4.0800000 4.0400000
-$d13C_ind
-[1] -39.47 -39.50
 
-$d15N_ind
-[1] 2.89 2.13
+    data{
+    int <lower = 1> N; // number of data points
+    vector [N] d13C_P; // Periphyton isotopic signal
+    vector [N] d15N_P; // Periphyton isotopic signal
+   
+    vector [N] d13C_T; // Terrestrial isotopic signal
+    vector [N] d15N_T; // Terrestrial isotopic signal
+   
+    int  <lower=0> Date [N]; // Date
+    int  <lower=0> Date_no;  // number of date
+    }
+   
+    parameters { //parametros calculados y a ser calculados
+   
+    vector [Date_no] d13C_A;             // vector de valores a estimar d13C para algas en las distintas fechas
+    vector [Date_no] d15N_A;             // vector de valores a estimar d15N para algas en las distintas fechas
+    vector <lower=0, upper=1> [Date_no] F_T;    // vector de la fracción de material aloctono en el perifiton por fecha
+   
+    //partial pooling
+    real mu_d13C_A;
+    real <lower=0> sd_d13C_A;
+   
+    real mu_d15N_A;
+    real <lower=0> sd_d15N_A;
+   
+    //real  <lower=0, upper=1> mu_F_T;
+    //real <lower=0> sd_F_T;
+   
+    real <lower=0> sigma_C;         // Distribution
+    real <lower=0> sigma_N;         // Distribution
+   
+   
+    }
+   
+    model{
+    //priors
+    mu_d13C_A ~ normal(-23.72, 4.10); // Mean and sd of d13C of fillamentous algae, cyanobacteria and isolated diatoms on tropical streams.
+    sd_d13C_A~ normal(0, 10);
+    d13C_A ~ normal(mu_d13C_A, sd_d13C_A);
+   
+    mu_d15N_A ~ normal (4.10, 3.13); // Mean and sd of d13C of fillamentous algae, cyanobacteria and isolated diatoms on tropical streams.
+    sd_d15N_A~ normal(0, 10);
+    d15N_A ~ normal(mu_d15N_A, sd_d15N_A);
+   
+    //mu_F_T ~ normal(0.5, 0.5); // no estoy muy seguro de este valor. Estoy dandole uno bastante amplio si va de 0 a 1
+    //sd_F_T ~ normal (0, 1);
+    F_T ~ beta (1, 1); // uniform prior for every value between 0 - 1
 
-$N
-[1] 2
+    //likelihood
+    for(i in 1:N){
+    d13C_P[i] ~ normal ((d13C_A[Date[i]]) * (1- (F_T[Date[i]])) +
+                            d13C_T[i] * (F_T[Date[i]]), sigma_C);
+    }
+   
+    for (i in 1:N){
+    d15N_P[i] ~ normal ((d15N_A[Date[i]]) * (1- (F_T[Date[i]])) +
+                            d15N_T[i] * (F_T[Date[i]]), sigma_N);
+    }
+   
 
-$src_no
-[1] 3
-
-$src_C
-[1] -32.08 -31.69 -26.58
-
-$sd_src_C
-[1] 0.1708996 0.2126633 4.0800000
-
-$src_N
-[1] 0.56 6.06 8.01
-
-$sd_src_N
-[1] 0.3189148 0.3295208 4.0400000
-
-$d13C_ind
-[1] -39.47 -39.50
-
-$d15N_ind
-[1] 2.89 2.13
-
-$N
-[1] 2
-
-$src_no
-[1] 3
-
-$src_C
-[1] -32.08 -31.69 -26.58
-
-$sd_src_C
-[1] 0.1708996 0.2126633 4.0800000
-
-$src_N
-[1] 0.56 6.06 8.01
-
-$sd_src_N
-[1] 0.3189148 0.3295208 4.0400000
-
-$d13C_ind
-[1] -39.47 -39.50
-
-$d15N_ind
-[1] 2.89 2.13
-
-$N
-[1] 2
-
-$src_no
-[1] 3
-
-$src_C
-[1] -32.08 -31.69 -26.58
-
-$sd_src_C
-[1] 0.1708996 0.2126633 4.0800000
-
-$src_N
-[1] 0.56 6.06 8.01
-
-$sd_src_N
-[1] 0.3189148 0.3295208 4.0400000
-
+    }
+   
+    

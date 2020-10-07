@@ -299,3 +299,6 @@ QPA_FW_G <- stan(file='QPA_FoodWeb.stan', data= QPAlist_G,
 traceplot(QPA_FW_G)
 print(QPA_FW_G)
 
+FW_Glossoso <- extract(QPA_FW_G)
+head(FW_Glossoso) 
+
