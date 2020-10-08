@@ -36,11 +36,11 @@
     model{
     //priors
     mu_d13C_A ~ normal(-23.72, 4.10); // Mean and sd of d13C of fillamentous algae, cyanobacteria and isolated diatoms on tropical streams.
-    sd_d13C_A~ normal(0, 10);
+    sd_d13C_A ~ normal(0, 10);
     d13C_A ~ normal(mu_d13C_A, sd_d13C_A);
    
     mu_d15N_A ~ normal (4.10, 3.13); // Mean and sd of d13C of fillamentous algae, cyanobacteria and isolated diatoms on tropical streams.
-    sd_d15N_A~ normal(0, 10);
+    sd_d15N_A ~ normal(0, 10);
     d15N_A ~ normal(mu_d15N_A, sd_d15N_A);
    
     //mu_F_T ~ normal(0.5, 0.5); // no estoy muy seguro de este valor. Estoy dandole uno bastante amplio si va de 0 a 1

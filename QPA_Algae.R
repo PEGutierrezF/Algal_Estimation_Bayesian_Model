@@ -10,6 +10,8 @@
 #
 #optionmemory.size(max = FALSE)
 install.packages("devtools", dependencies = TRUE)
+devtools::install_github("krlmlr/ulimit")
+ulimit::memory_limit(2000)
 
 #Loading required packages
 library(ggplot2)
@@ -23,7 +25,7 @@ Sys.setenv(LOCAL_CPPFLAGS = '-march=native') ## Rstan recommend this for improve
 
 #setwd ("C:/Users/Pavel/Documents/R_ejercicio/ecomodel/isotope_mixing/puerto_rico") 
 
-
+gc()
 sources<- read.csv("sourcesQPA.csv")
 head(sources)
 
@@ -66,11 +68,11 @@ cat("
     model{
     //priors
     mu_d13C_A ~ normal(-23.72, 4.10); // Mean and sd of d13C of fillamentous algae, cyanobacteria and isolated diatoms on tropical streams.
-    sd_d13C_A~ normal(0, 10);
+    sd_d13C_A ~ normal(0, 10);
     d13C_A ~ normal(mu_d13C_A, sd_d13C_A);
    
     mu_d15N_A ~ normal (4.10, 3.13); // Mean and sd of d13C of fillamentous algae, cyanobacteria and isolated diatoms on tropical streams.
-    sd_d15N_A~ normal(0, 10);
+    sd_d15N_A ~ normal(0, 10);
     d15N_A ~ normal(mu_d15N_A, sd_d15N_A);
    
     //mu_F_T ~ normal(0.5, 0.5); // no estoy muy seguro de este valor. Estoy dandole uno bastante amplio si va de 0 a 1
