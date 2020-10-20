@@ -8,10 +8,6 @@
 #PEGF
 #--------------------------------------------
 #
-#optionmemory.size(max = FALSE)
-install.packages("devtools", dependencies = TRUE)
-devtools::install_github("krlmlr/ulimit")
-ulimit::memory_limit(2000)
 
 #Loading required packages
 library(ggplot2)
@@ -25,7 +21,6 @@ Sys.setenv(LOCAL_CPPFLAGS = '-march=native') ## Rstan recommend this for improve
 
 #setwd ("C:/Users/Pavel/Documents/R_ejercicio/ecomodel/isotope_mixing/puerto_rico") 
 
-gc()
 sources<- read.csv("sourcesQPA.csv")
 head(sources)
 
@@ -110,7 +105,7 @@ datalist_QP <- list(d13C_P=(sources$delta13C_P), d15N_P=(sources$delta15N_P),
 datalist_QP
 QPCA <- stan(file = "QP_PR.stan", data = datalist_QP,
                     #control= list(adapt_delta = 0.999, max_treedepth=12),
-                    warmup= 48000,
+                    warmup= 48000,options(mc.cores = parallel::detectCores()),
                     chains = 4, iter = 50000)
 
 # Plot results ------------------------------------------------------------
