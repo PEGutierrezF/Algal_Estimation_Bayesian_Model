@@ -19,7 +19,7 @@ rstan_options(auto_write = TRUE)##To avoid recompilation of unchanged Stan progr
 options(mc.cores = parallel::detectCores()) ## Le dice que use los nucleos disponibles para el analisis
 Sys.setenv(LOCAL_CPPFLAGS = '-march=native') ## Rstan recommend this for improved execution time  
 
-sources<- read.csv("sourcesQPA.csv")
+sources<- read.csv("sourcesQPB.csv")
 head(sources)
 
 sink("QP_PR.stan")
@@ -116,7 +116,7 @@ print(QPCA)
 sources_cor <- extract(QPCA)
 head(sources_cor) 
 
-sources_QPA <- data.frame (
+sources_QPB <- data.frame (
     February_2017 = c (
         mean(sources_cor$d13C_A[,1]),
         sd(sources_cor$d13C_A[,1]),
@@ -186,10 +186,10 @@ sources_QPA <- data.frame (
     )
 
 
-rownames(sources_QPA) <- c("d13C_A","sd_d13C_A","d15N_A", "sd_d15N_A",
+rownames(sources_QPB) <- c("d13C_A","sd_d13C_A","d15N_A", "sd_d15N_A",
                            "d13C_P","sd_d13C_P", "d15N_P", "sd_d15N_P", 
                            "d13C_T", "sd_d13C_T", "d15N_T","sd_d15N_T")
-sources_QPA <-as.data.frame(t(as.matrix(sources_QPA)))
-print(sources_QPA, digits=2)
-write.csv(sources_QPA, file= "Sources_QPA_results.csv") ## export as csv for further results
+sources_QPB <-as.data.frame(t(as.matrix(sources_QPB)))
+print(sources_QPB, digits=2)
+write.csv(sources_QPB, file= "Sources_QPB_results.csv") ## export as csv for further results
 
